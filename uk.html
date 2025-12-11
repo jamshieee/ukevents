@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uk events</title>
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons for a modern look -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Load Google Font (Inter, matching config) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Apply the custom font and smooth transitions */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb; /* Light gray background */
+        }
+        /* Custom scroll behavior for the modal */
+        .modal-open {
+            overflow: hidden;
+        }
+    </style>
+    <script>
+        // --- 1. CONFIGURATION AND DATA (Updated with color-specific images) ---
+
+        const APP_CONFIG = {
+            PRIMARY_COLOR: 'bg-blue-600',
+            PRIMARY_COLOR_HOVER: 'hover:bg-blue-700',
+        };
+
+        // Tracks the currently active color for each product ID when the modal is open
+        let activeColor = {};
+
+        const products = [
+          {
+            id: 1,
+            name: "Balloons",
+            category: "Bags",
+            description: "A timeless satchel handcrafted from genuine full-grain leather. Perfect for daily use and professional settings.",
+            price: "$299.99",
+            // Fallback/Card image:
+            image: "https://i.pinimg.com/1200x/03/ec/3b/03ec3bfb3154fb22b8774dbde84c224b.jpg", 
+            colors: ["Brown", "Black", "Dark Blue"],
+            // Images specific to colors (only used in modal for demonstration)
+            colorImages: {
+              "Brown": "https://i.pinimg.com/1200x/03/ec/3b/03ec3bfb3154fb22b8774dbde84c224b.jpg",
+              "Black": "https://i.pinimg.com/1200x/ba/75/f3/ba75f3d4068e510c2d8f2123a12fdae6.jpg",
+              "Dark Blue": "https://placehold.co/600x450/1a237e/ffffff?text=BLUE+LEATHER+Satchel",
+            }
+          },
+          {
+            id: 2,
+            name: "Happy Birthday",
+            category: "Electronics",
+            description: "Track your fitness and notifications with this sleek, water-resistant minimalist smartwatch. 7-day battery life.",
+            price: "$149.50",
+            image: "https://i.pinimg.com/736x/0e/9f/10/0e9f1092bef724e72eb9a14240524875.jpg",
+            colors: ["Silver", "Black", "Rose Gold"],
+            colorImages: {
+              "Silver": "https://i.pinimg.com/736x/0e/9f/10/0e9f1092bef724e72eb9a14240524875.jpg",
+              "Black": "https://placehold.co/600x450/000000/ffffff?text=BLACK+Smartwatch",
+              "Rose Gold": "https://placehold.co/600x450/f4b9b9/000000?text=ROSE+GOLD+Smartwatch",
+            }
+          },
+          {
+            id: 3,
+            name: "Bride To Be",
+            category: "Electronics",
+            description: "Immersive audio quality and industry-leading noise cancellation for travel and work.",
+            price: "$349.00",
+            image: "https://i.pinimg.com/1200x/ba/75/f3/ba75f3d4068e510c2d8f2123a12fdae6.jpg",
+            colors: ["White", "Black", "Red"],
+            colorImages: {
+              "White": "https://i.pinimg.com/1200x/ba/75/f3/ba75f3d4068e510c2d8f2123a12fdae6.jpg",
+              "Black": "https://placehold.co/600x450/0a0a0a/ffffff?text=BLACK+Headphones",
+              "Red": "https://placehold.co/600x450/dc2626/ffffff?text=RED+Headphones",
+            }
+          },
+          {
+            id: 4,
+            name: "Groom To Be",
+            category: "Apparel",
+            description: "Made from 100% sustainably sourced organic cotton. Ultra-soft and breathable for everyday comfort.",
+            price: "$45.99",
+            image: "https://i.pinimg.com/1200x/86/7c/59/867c59a06d41ff27e1c41365d5766bc5.jpg",
+            colors: ["White", "Navy", "Gray", "Red"],
+          },
+          {
+            id: 5,
+            name: "BEAR HEAD BALLOONS",
+            category: "Electronics",
+            description: "20,000mAh capacity to charge your devices multiple times. Slim design for ultimate portability.",
+            price: "$65.00",
+            image: "https://i.pinimg.com/1200x/ca/af/cb/caafcb9c346c03a5784194fa2f8155a9.jpg",
+            colors: ["Black", "Green", "Red"],
+          },
+          {
+            id: 6,
+            name: "Popper",
+            category: "Furniture",
+            description: "Designed for ultimate back support during long working hours. Fully adjustable lumbar system.",
+            price: "$450.00",
+            image: "https://i.pinimg.com/1200x/3d/b1/f0/3db1f085fad1d0573e6121c52de59330.jpg",
+            colors: ["Charcoal", "Light Gray"],
+          },
+          {
+            id: 7,
+            name: "BIRTHDAY HAT",
+            category: "Home Goods",
+            description: "Brew rich, authentic espresso with this vintage-inspired manual machine, a staple for any kitchen.",
+            price: "$199.90",
+            image: "https://i.pinimg.com/736x/5a/20/81/5a2081e27b9c0f37be65094b9ce619c2.jpg",
+            colors: ["Chrome", "Copper", "Black"],
+          },
+          {
+            id: 8,
+            name: "GLASSES",
+            category: "Bags",
+            description: "Durable, weather-resistant backpack for hiking and travel. Features multiple compartments and laptop sleeve.",
+            price: "$125.00",
+            image: "https://i.pinimg.com/1200x/d7/d5/36/d7d5362b8dfa50f83b690fc57e1e7aa4.jpg",
+            colors: ["Forest Green", "Black", "Blue"],
+          },
+        ];
+
+        // --- 2. FIREBASE BOILERPLATE (Mandatory for environment) ---
+        // These global variables are provided by the canvas environment.
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+
+        let db, auth;
+
+        async function initFirebase() {
+            if (!firebaseConfig || Object.keys(firebaseConfig).length === 0) {
+                console.warn("Firebase configuration is missing. Skipping initialization.");
+                return;
+            }
+
+            const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
+            const { getAuth, signInAnonymously, signInWithCustomToken } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+            const { getFirestore, setLogLevel } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+            
+            try {
+                // setLogLevel('Debug'); // Uncomment for detailed logs
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                if (typeof __initial_auth_token !== 'undefined') {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                    console.log("Firebase Auth: Signed in with custom token.");
+                } else {
+                    await signInAnonymously(auth);
+                    console.log("Firebase Auth: Signed in anonymously.");
+                }
+                
+            } catch (error) {
+                console.error("Firebase Initialization or Auth Error:", error);
+            }
+        }
+
+
+        // --- 3. HELPER FUNCTIONS ---
+
+        /**
+         * Maps color names to Tailwind utility classes.
+         */
+        const getColorClass = (colorName) => {
+            const normalized = colorName.toLowerCase().replace(/\s/g, ''); 
+            switch (normalized) {
+                case 'red': return 'bg-red-600';
+                case 'blue': return 'bg-blue-600';
+                case 'black': return 'bg-gray-900';
+                case 'white': return 'bg-white border border-gray-300';
+                case 'brown': return 'bg-amber-800';
+                case 'darkblue': return 'bg-blue-900';
+                case 'silver': return 'bg-gray-400';
+                case 'rosegold': return 'bg-pink-300';
+                case 'navy': return 'bg-indigo-900';
+                case 'gray':
+                case 'lightgray': return 'bg-gray-500';
+                case 'charcoal': return 'bg-gray-700';
+                case 'green':
+                case 'forestgreen': return 'bg-green-700';
+                case 'copper': return 'bg-amber-600';
+                case 'orange': return 'bg-orange-600';
+                case 'chrome': return 'bg-gray-200 border border-gray-400';
+                default: return 'bg-gray-700';
+            }
+        };
+
+        /**
+         * Generates the HTML for the color option dots for the PRODUCT CARD (non-interactive).
+         */
+        const createColorDotsHtml = (colors, isLarge = false) => {
+            return colors.map((color) => {
+                const size = isLarge ? 'w-5 h-5' : 'w-3 h-3';
+                const colorClass = getColorClass(color);
+                return `
+                    <span 
+                        title="${color}"
+                        class="${colorClass} ${size} rounded-full inline-block shadow-inner transition-transform duration-200 ${isLarge ? 'hover:scale-110' : ''}"
+                    ></span>
+                `;
+            }).join('');
+        };
+
+        /**
+         * Generates the HTML for the color option dots for the MODAL (interactive).
+         */
+        const createColorDotsHtmlForModal = (productId, colors) => {
+            // Set the default active color to the first one available
+            const defaultColor = colors[0];
+            
+            // Initialize or reset the active color tracker
+            activeColor[productId] = defaultColor; 
+
+            return colors.map((color) => {
+                const colorClass = getColorClass(color);
+                const isActive = color === defaultColor;
+                
+                // Add a unique ID and the onclick handler
+                return `
+                    <button 
+                        type="button"
+                        id="color-dot-${productId}-${color.toLowerCase().replace(/\s/g, '')}"
+                        title="${color}"
+                        onclick="changeColorImage(${productId}, '${color}')"
+                        class="${colorClass} w-8 h-8 rounded-full shadow-md transition-all duration-200 focus:outline-none 
+                                ${isActive ? 'ring-4 ring-offset-2 ring-blue-500' : 'hover:scale-110'}"
+                    ></button>
+                `;
+            }).join('');
+        };
+        
+        /**
+         * Function to change the main product image in the modal and update active state.
+         * This function is called when a color dot is clicked.
+         */
+        const changeColorImage = (productId, colorName) => {
+            const product = products.find(p => p.id === productId);
+            // Ensure product and colorImages exist
+            if (!product || !product.colorImages) return;
+
+            const imageElement = document.getElementById('modal-product-image');
+            if (!imageElement) return;
+
+            // 1. Update the image source: use color image or fall back to generic image
+            const newImageUrl = product.colorImages[colorName] || product.image;
+            imageElement.src = newImageUrl;
+            imageElement.alt = `${product.name} in ${colorName}`; // Update alt text
+
+            // 2. Update active color dot visual state
+            const oldColorName = activeColor[productId];
+            
+            // Only proceed if the color is actually changing
+            if (oldColorName === colorName) return; 
+
+            // Remove ring from old active dot
+            if (oldColorName) {
+                const oldDotId = `color-dot-${productId}-${oldColorName.toLowerCase().replace(/\s/g, '')}`;
+                const oldDot = document.getElementById(oldDotId);
+                if (oldDot) {
+                    oldDot.classList.remove('ring-4', 'ring-offset-2', 'ring-blue-500');
+                    oldDot.classList.add('hover:scale-110');
+                }
+            }
+
+            // Add ring to new active dot
+            const newDotId = `color-dot-${productId}-${colorName.toLowerCase().replace(/\s/g, '')}`;
+            const newDot = document.getElementById(newDotId);
+            if (newDot) {
+                newDot.classList.add('ring-4', 'ring-offset-2', 'ring-blue-500');
+                newDot.classList.remove('hover:scale-110');
+            }
+            
+            // 3. Update the tracking variable
+            activeColor[productId] = colorName;
+        };
+
+
+        /**
+         * Generates the HTML for a single product card.
+         * Image is visible on all screen sizes, description/colors hidden on mobile.
+         */
+        const createProductCardHtml = (product) => {
+            return `
+                <div
+                    class="bg-white rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden cursor-pointer flex flex-col h-full"
+                    onclick="openModal(${product.id})"
+                >
+                    <!-- Image Container (Visible on ALL sizes) -->
+                    <div class="relative h-40 sm:h-48 md:h-52 overflow-hidden">
+                        <img
+                            src="${product.image}"
+                            alt="${product.name}"
+                            class="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                            onerror="this.onerror=null;this.src='https://placehold.co/400x300/e5e7eb/3b82f6?text=Image+Missing';"
+                        />
+                        <!-- Removed small screen price label since price is in the content block below -->
+                    </div>
+
+                    <!-- Content -->
+                    <div class="p-4 flex flex-col flex-grow">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-base sm:text-lg font-bold text-gray-800 line-clamp-1">${product.name}</h3>
+                            <span class="text-sm font-bold text-blue-600 flex-shrink-0 ml-3">${product.price}</span>
+                        </div>
+                        
+                        <!-- Description (Hidden on mobile, visible on sm and up) -->
+                        <p class="text-sm text-gray-500 mb-3 line-clamp-2 flex-grow hidden sm:block">${product.description}</p>
+                        
+                        <!-- Color Dots (Hidden on mobile, visible on sm and up) -->
+                        <div class="items-center justify-between mb-4 mt-2 hidden sm:flex">
+                            <span class="text-xs font-medium text-gray-700 mr-2">Colors:</span>
+                            <div class="flex space-x-1 sm:space-x-2">
+                                ${createColorDotsHtml(product.colors, false)}
+                            </div>
+                        </div>
+
+                        <!-- Quick View / Contact Button -->
+                        <button 
+                            class="w-full ${APP_CONFIG.PRIMARY_COLOR} ${APP_CONFIG.PRIMARY_COLOR_HOVER} text-white font-semibold py-2 rounded-lg transition duration-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-md"
+                            onclick="event.stopPropagation(); openModal(${product.id})"
+                        >
+                            Quick View
+                        </button>
+                    </div>
+                </div>
+            `;
+        };
+
+        /**
+         * Renders the filtered products into the main grid.
+         */
+        const renderProducts = (filteredProducts) => {
+            const grid = document.getElementById('product-grid');
+            if (!grid) return;
+
+            if (filteredProducts.length === 0) {
+                const searchTerm = document.getElementById('search-input').value;
+                grid.innerHTML = `
+                    <div class="col-span-full p-8 text-center text-xl text-gray-600 mt-6 bg-white rounded-xl shadow-lg border border-gray-100">
+                        No products matching "${searchTerm}" were found. Try a different search term!
+                    </div>
+                `;
+            } else {
+                grid.innerHTML = filteredProducts.map(createProductCardHtml).join('');
+            }
+        };
+
+        /**
+         * Filters the products based on the search input value.
+         */
+        const handleSearch = () => {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            
+            const filteredProducts = products.filter(product => {
+                const nameMatch = product.name.toLowerCase().includes(searchTerm);
+                const categoryMatch = product.category.toLowerCase().includes(searchTerm);
+                const colorMatch = product.colors.some(color => 
+                    color.toLowerCase().includes(searchTerm)
+                );
+                
+                return nameMatch || categoryMatch || colorMatch;
+            });
+
+            renderProducts(filteredProducts);
+        };
+
+        // --- 4. MODAL LOGIC ---
+
+        /**
+         * Opens the product detail modal.
+         */
+        const openModal = (productId) => {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const modal = document.getElementById('product-modal');
+            const modalContent = document.getElementById('modal-content');
+
+            const emailSubject = encodeURIComponent(`Booking Inquiry for: ${product.name}`);
+            
+            let initialImageUrl = product.image;
+            let colorsHtml = '';
+            
+            if (product.colors && product.colors.length > 0) {
+                // Use the new interactive dots function for the modal
+                colorsHtml = createColorDotsHtmlForModal(product.id, product.colors);
+                
+                // Set the initial image to the first color, if specific images exist
+                if (product.colorImages && product.colorImages[product.colors[0]]) {
+                    initialImageUrl = product.colorImages[product.colors[0]];
+                    activeColor[product.id] = product.colors[0]; // Track initial color
+                }
+            } else {
+                 // Fallback: Use standard non-interactive dots if no color images logic is needed
+                colorsHtml = createColorDotsHtml(product.colors, true);
+            }
+
+            modalContent.innerHTML = `
+                <div class="md:flex p-6 pt-0">
+                    <!-- Image Section (Added ID for dynamic update) -->
+                    <div class="md:w-1/2 flex justify-center items-start p-4">
+                        <img 
+                            id="modal-product-image"
+                            src="${initialImageUrl}" 
+                            alt="${product.name} in ${activeColor[product.id] || 'default'}" 
+                            class="w-full h-auto max-h-[60vh] object-contain rounded-xl shadow-xl border border-gray-100 transition-opacity duration-300"
+                            onerror="this.onerror=null;this.src='https://placehold.co/600x450/e5e7eb/3b82f6?text=Image+Missing';"
+                        />
+                    </div>
+
+                    <!-- Details Section -->
+                    <div class="md:w-1/2 p-4 md:pl-8">
+                        <h2 class="text-3xl font-extrabold text-gray-900 mb-2">${product.name}</h2>
+                        <p class="text-3xl font-bold text-blue-600 mb-6">${product.price}</p>
+                        
+                        <h3 class="text-xl font-semibold text-gray-700 mt-4 mb-2">Description</h3>
+                        <p class="text-gray-600 mb-6 leading-relaxed text-base">${product.description}</p>
+                        
+                        <!-- Color Options (Now fully interactive) -->
+                        <div class="mb-8 p-3 bg-gray-50 rounded-lg">
+                            <span class="text-lg font-semibold text-gray-700 mr-4 block mb-2">Available Colors:</span>
+                            <div class="flex space-x-4">
+                                ${colorsHtml}
+                            </div>
+                        </div>
+
+                        <!-- Booking and Contact Links -->
+                        <div class="space-y-4">
+                            <a 
+                            href="mailto:contact@staticshop.com?subject=${emailSubject}"
+                            class="w-full flex items-center justify-center ${APP_CONFIG.PRIMARY_COLOR} ${APP_CONFIG.PRIMARY_COLOR_HOVER} text-white font-bold py-3 rounded-xl transition duration-300 text-lg shadow-lg"
+                            onclick="closeModal()"
+                            >
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                            Contact for Booking (Email)
+                            </a>
+                            <a 
+                            href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer"
+                            class="w-full flex items-center justify-center bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition duration-300 text-lg shadow-lg"
+                            onclick="closeModal()"
+                            >
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 4v-4z"></path></svg>
+                            Chat on WhatsApp
+                            </a>
+                        </div>
+                        
+                        <p class="text-sm text-gray-500 mt-4 text-center">
+                            *Products are reserved only after direct contact confirmation.
+                        </p>
+                    </div>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+            document.body.classList.add('modal-open');
+
+            // Add event listener to close modal on 'Escape' key
+            document.addEventListener('keydown', handleEscapeKey);
+        };
+
+        /**
+         * Closes the product detail modal.
+         */
+        const closeModal = () => {
+            const modal = document.getElementById('product-modal');
+            modal.classList.add('hidden');
+            document.body.classList.remove('modal-open');
+
+            // Remove 'Escape' key listener
+            document.removeEventListener('keydown', handleEscapeKey);
+        };
+
+        /**
+         * Handles the Escape key press to close the modal.
+         */
+        const handleEscapeKey = (event) => {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        };
+
+
+        // --- 5. ROUTING LOGIC (Page Switching) ---
+
+        const pageIds = ['home-page', 'products-page', 'services-page', 'contact-page'];
+
+        /**
+         * Renders the specified page content and updates the URL hash.
+         */
+        const renderPage = (pageId) => {
+            // Update URL hash for simple routing
+            window.location.hash = `#${pageId}`;
+            
+            // Toggle visibility of content divs
+            pageIds.forEach(id => {
+                const page = document.getElementById(id);
+                if (page) {
+                    page.classList.add('hidden');
+                }
+            });
+
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+            }
+            
+            // Special handling for the Products page: re-render products on navigation
+            if (pageId === 'products-page') {
+                handleSearch();
+            }
+
+            // Close mobile menu if open
+            document.getElementById('mobile-menu').classList.add('hidden');
+            document.getElementById('menu-icon-open').classList.remove('hidden');
+            document.getElementById('menu-icon-close').classList.add('hidden');
+        };
+
+        /**
+         * Handles initial page load and hash changes.
+         */
+        const handleHashChange = () => {
+            const hash = window.location.hash.slice(1) || 'home-page';
+            if (pageIds.includes(hash)) {
+                renderPage(hash);
+            } else {
+                renderPage('home-page'); // Default to home if hash is invalid
+            }
+        };
+
+
+        // --- 6. INITIALIZATION ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initFirebase(); // Initialize Firebase boilerplate
+
+            // Set up search bar listener
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', handleSearch);
+            }
+
+            // Setup initial page view based on URL hash or default to home
+            handleHashChange();
+            window.addEventListener('hashchange', handleHashChange);
+
+            // Hide the modal when clicking on the overlay background
+            const modal = document.getElementById('product-modal');
+            if(modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target.id === 'product-modal') {
+                        closeModal();
+                    }
+                });
+            }
+
+            // Initialize Lucide icons
+            lucide.createIcons();
+        });
+    </script>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- --- NAVBAR --- -->
+    <nav class="bg-white shadow-md sticky top-0 z-40 border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo/Brand -->
+                <a href="#home-page" onclick="renderPage('home-page')" class="flex-shrink-0 text-2xl font-extrabold text-gray-900 flex items-center tracking-tight">
+                    <i data-lucide="shopping-bag" class="w-7 h-7 mr-2 text-blue-600"></i>
+                    UK<span class="text-blue-600">Events</span>
+                </a>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-8">
+                    <a href="#home-page" onclick="renderPage('home-page')" class="text-gray-700 hover:text-blue-600 transition duration-150 ease-in-out font-medium py-1 px-2 border-b-2 border-transparent hover:border-blue-600">Home</a>
+                    <a href="#products-page" onclick="renderPage('products-page')" class="text-gray-700 hover:text-blue-600 transition duration-150 ease-in-out font-medium py-1 px-2 border-b-2 border-transparent hover:border-blue-600">Products</a>
+                    <a href="#services-page" onclick="renderPage('services-page')" class="text-gray-700 hover:text-blue-600 transition duration-150 ease-in-out font-medium py-1 px-2 border-b-2 border-transparent hover:border-blue-600">Services</a>
+                    <a href="#contact-page" onclick="renderPage('contact-page')" class="text-gray-700 hover:text-blue-600 transition duration-150 ease-in-out font-medium py-1 px-2 border-b-2 border-transparent hover:border-blue-600">Contact</a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button
+                        onclick="document.getElementById('mobile-menu').classList.toggle('hidden'); document.getElementById('menu-icon-open').classList.toggle('hidden'); document.getElementById('menu-icon-close').classList.toggle('hidden');"
+                        class="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none transition"
+                    >
+                        <i data-lucide="menu" id="menu-icon-open" class="h-6 w-6"></i>
+                        <i data-lucide="x" id="menu-icon-close" class="h-6 w-6 hidden"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Panel -->
+        <div id="mobile-menu" class="md:hidden hidden transition-all duration-300 ease-in-out border-t border-gray-100">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home-page" onclick="renderPage('home-page')" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:bg-blue-600 hover:text-white transition">Home</a>
+                <a href="#products-page" onclick="renderPage('products-page')" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:bg-blue-600 hover:text-white transition">Products</a>
+                <a href="#services-page" onclick="renderPage('services-page')" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:bg-blue-600 hover:text-white transition">Services</a>
+                <a href="#contact-page" onclick="renderPage('contact-page')" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:bg-blue-600 hover:text-white transition">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- --- MAIN CONTENT AREA --- -->
+    <main class="flex-grow">
+        
+        <!-- HOME PAGE -->
+        <div id="home-page" class="hidden bg-white min-h-[calc(100vh-160px)]">
+            <div class="bg-gray-50 py-20 sm:py-32 text-center border-b border-gray-100">
+                <div class="max-w-4xl mx-auto px-4">
+                    <h1 class="text-5xl sm:text-7xl font-extrabold text-gray-900 mb-4 tracking-tight">
+                        Curated <span class="text-blue-600">Quality</span>. Effortless Booking.
+                    </h1>
+                    <p class="text-lg sm:text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
+                        Explore our hand-picked catalog of modern essentials. Start your booking inquiry today—it's simple and direct.
+                    </p>
+                    <a 
+                        href="#products-page" onclick="renderPage('products-page')"
+                        class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-10 rounded-xl text-lg transition duration-300 shadow-xl hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-blue-600 focus:ring-opacity-50 transform hover:scale-105"
+                    >
+                        Shop the Catalog
+                    </a>
+                </div>
+            </div>
+
+            <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-gray-800 text-center mb-12">Why Choose Us?</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="text-center p-6 bg-white rounded-xl shadow-lg border border-gray-100">
+                        <i data-lucide="award" class="w-10 h-10 text-blue-600 mx-auto mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Premium Selection</h3>
+                        <p class="text-gray-600">Only the highest rated and most stylish products make it into our exclusive catalog.</p>
+                    </div>
+                    <div class="text-center p-6 bg-white rounded-xl shadow-lg border border-gray-100">
+                        <i data-lucide="trending-up" class="w-10 h-10 text-blue-600 mx-auto mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Modern Design</h3>
+                        <p class="text-gray-600">Our products combine aesthetic excellence with cutting-edge functionality.</p>
+                    </div>
+                    <div class="text-center p-6 bg-white rounded-xl shadow-lg border border-gray-100">
+                        <i data-lucide="zap" class="w-10 h-10 text-blue-600 mx-auto mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Personalized Service</h3>
+                        <p class="text-gray-600">All bookings are handled one-on-one for a direct and tailored experience.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRODUCTS PAGE (Main Dynamic Content) -->
+        <div id="products-page" class="hidden min-h-screen bg-gray-50">
+            <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                
+                <h1 class="text-4xl font-extrabold text-gray-900 mb-6 text-center">The Product Catalog</h1>
+                <p class='text-center text-gray-600 mb-10'>Browse through our responsive grid of high-quality items.</p>
+                
+                <!-- Search Bar -->
+                <div class="w-full max-w-3xl mx-auto mb-10 p-2">
+                    <div class="relative">
+                        <input
+                            type="text"
+                            id="search-input"
+                            placeholder="Search products by name, category, or color..."
+                            class="w-full py-3 pl-14 pr-4 text-base border-2 border-gray-200 rounded-full shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-600 focus:ring-opacity-20 focus:border-blue-600 transition duration-200"
+                        />
+                        <i data-lucide="search" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"></i>
+                    </div>
+                </div>
+
+                <!-- Product Grid (Dynamic Content) -->
+                <div id="product-grid" class="grid grid-cols-2 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
+                    <!-- Products will be injected here by renderProducts() -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- SERVICES PAGE -->
+        <div id="services-page" class="hidden min-h-[calc(100vh-160px)] bg-white py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h1 class="text-4xl font-extrabold text-gray-900 mb-6 text-center">Our Specialized Services</h1>
+                <p class="text-center text-lg text-gray-600 mb-12 max-w-4xl mx-auto">
+                    We offer comprehensive services designed to complement your product purchase, ensuring a smooth, quality-controlled, and reliable experience from inquiry to delivery.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="bg-gray-50 p-6 rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition duration-300 transform hover:-translate-y-0.5">
+                        <i data-lucide="settings" class="w-10 h-10 text-blue-600 mx-auto mb-4"></i>
+                        <h2 class="text-xl font-bold text-gray-800 mb-3 text-center">Custom Sourcing</h2>
+                        <p class="text-gray-600 text-sm text-center">Need something specific? We help you source and procure hard-to-find items globally.</p>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition duration-300 transform hover:-translate-y-0.5">
+                        <i data-lucide="shield" class="w-10 h-10 text-green-500 mx-auto mb-4"></i>
+                        <h2 class="text-xl font-bold text-gray-800 mb-3 text-center">Quality Assurance</h2>
+                        <p class="text-gray-600 text-sm text-center">Every product is inspected by our team to ensure it meets our rigorous quality standards.</p>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition duration-300 transform hover:-translate-y-0.5">
+                        <i data-lucide="truck" class="w-10 h-10 text-yellow-600 mx-auto mb-4"></i>
+                        <h2 class="text-xl font-bold text-gray-800 mb-3 text-center">Logistics & Shipping</h2>
+                        <p class="text-gray-600 text-sm text-center">Arranging secure and efficient shipping worldwide upon confirmed booking.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTACT PAGE -->
+        <div id="contact-page" class="hidden min-h-[calc(100vh-160px)] bg-white py-12">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h1 class="text-4xl font-extrabold text-gray-900 mb-6 text-center">Get in Touch</h1>
+                <p class="text-center text-lg text-gray-600 mb-12">
+                    Ready to book an item? Have a specific inquiry? We're here to help you directly.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <!-- Contact Details -->
+                    <div class="space-y-6">
+                        <h2 class="text-2xl font-bold text-gray-800 border-b pb-3 mb-4">Direct Contact Methods</h2>
+                        
+                        <div class="flex items-start space-x-4 bg-gray-50 p-5 rounded-xl shadow-md">
+                            <i data-lucide="mail" class="w-6 h-6 text-blue-600 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <p class="font-semibold text-gray-700">Booking & Inquiries</p>
+                                <a href="mailto:booking@staticshop.com" class="text-sm text-blue-600 hover:text-blue-700 transition duration-200 underline">booking@staticshop.com</a>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-4 bg-gray-50 p-5 rounded-xl shadow-md">
+                            <i data-lucide="message-circle" class="w-6 h-6 text-green-500 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <p class="font-semibold text-gray-700">Live Chat (WhatsApp)</p>
+                                <a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer" class="text-sm text-green-500 hover:text-green-600 transition duration-200 underline">Start a Conversation</a>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-4 bg-gray-50 p-5 rounded-xl shadow-md">
+                            <i data-lucide="phone" class="w-6 h-6 text-gray-600 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <p class="font-semibold text-gray-700">Phone Support</p>
+                                <p class="text-sm text-gray-600">+1 (234) 567-8900</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Form Placeholder -->
+                    <div class="bg-gray-100 p-8 rounded-2xl shadow-2xl">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6">Send Us a Message</h2>
+                        <form class="space-y-5">
+                            <input type="text" placeholder="Your Full Name" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition" required />
+                            <input type="email" placeholder="Your Email Address" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition" required />
+                            <textarea placeholder="Your Inquiry" rows="5" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition" required></textarea>
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition duration-300 shadow-lg">
+                                Submit Inquiry
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- --- FOOTER --- -->
+    <footer class="bg-gray-800 text-white mt-12 shadow-inner">
+        <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 border-b border-gray-700 pb-8 mb-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-3 text-blue-400">Uk Events</h3>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#home-page" onclick="renderPage('home-page')" class="hover:text-white transition">Home</a></li>
+                        <li><a href="#products-page" onclick="renderPage('products-page')" class="hover:text-white transition">Catalog</a></li>
+                        <li><a href="#services-page" onclick="renderPage('services-page')" class="hover:text-white transition">Services</a></li>
+                    </ul>
+                </div>
+                <div class="col-span-2 md:col-span-2">
+                    <h3 class="text-lg font-semibold mb-3 text-blue-400">Booking & Contact</h3>
+                    <p class="text-sm text-gray-400 mb-4">
+                        Products are reserved via direct contact only. Get in touch:
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a 
+                            href="mailto:booking@staticshop.com" 
+                            class="flex items-center bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition shadow-md"
+                        >
+                            <i data-lucide="mail" class="w-4 h-4 mr-2"></i> Email Booking
+                        </a>
+                        <a 
+                            href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer"
+                            class="flex items-center bg-green-500 hover:bg-green-600 text-white text-sm font-medium py-2 px-4 rounded-lg transition shadow-md"
+                        >
+                            <i data-lucide="message-circle" class="w-4 h-4 mr-2"></i> WhatsApp Chat
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <p class="text-xs text-gray-500">
+                    © 2024 UK Events E-Commerce. All rights reserved. 
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- --- PRODUCT MODAL (Hidden by Default) --- -->
+    <div id="product-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black bg-opacity-70 p-4 transition-opacity duration-300 backdrop-blur-sm">
+      <div 
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] overflow-y-auto transform transition-transform duration-300 scale-100"
+        onclick="event.stopPropagation()"
+      >
+        <div class="flex justify-end p-3 sticky top-0 bg-white rounded-t-2xl z-10">
+          <button onclick="closeModal()" class="text-gray-400 hover:text-gray-700 transition p-1 rounded-full hover:bg-gray-100">
+            <i data-lucide="x" class="w-6 h-6"></i>
+          </button>
+        </div>
+
+        <!-- Modal Content (Injected by openModal) -->
+        <div id="modal-content">
+            <!-- Content will be injected here -->
+        </div>
+      </div>
+    </div>
+
+</body>
+</html>
