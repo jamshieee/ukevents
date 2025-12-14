@@ -9,12 +9,14 @@
     <!-- Load Lucide Icons for a modern look -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Load Google Font (Inter, matching config) -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* Apply the custom font and smooth transitions */
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f9fafb; /* Light gray background */
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 
+                        'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #1f2937; /* gray-800 */
         }
         /* Custom scroll behavior for the modal */
         .modal-open {
@@ -25,8 +27,8 @@
         // --- 1. CONFIGURATION AND DATA (Updated with color-specific images) ---
 
         const APP_CONFIG = {
-            PRIMARY_COLOR: 'bg-blue-600',
-            PRIMARY_COLOR_HOVER: 'hover:bg-blue-700',
+            PRIMARY_COLOR: 'bg-black-600',
+            PRIMARY_COLOR_HOVER: 'hover:bg-black-700',
         };
 
         // Tracks the currently active color for each product ID when the modal is open
@@ -38,7 +40,7 @@
             name: "Balloons",
             category: "Bags",
             description: "balloons with colors",
-            price: "$299.99",
+            price: "299.99/-",
             // Fallback/Card image:
             image: "https://i.pinimg.com/1200x/03/ec/3b/03ec3bfb3154fb22b8774dbde84c224b.jpg", 
             colors: ["Brown", "Black", "Dark Blue"],
@@ -51,16 +53,16 @@
           },
           {
             id: 2,
-            name: "Happy Birthday",
-            category: "Electronics",
-            description: "ballons with letters.",
-            price: "$149.50",
-            image: "https://i.pinimg.com/736x/0e/9f/10/0e9f1092bef724e72eb9a14240524875.jpg",
+            name: "Letter Foil",
+            category: "Balloons",
+            description: "The Letter Foil Balloons with multiple colors for all occassion like birthday groom to be and bride to be etc.It comes with 18 Rupees for single letter only",
+            price: "18.00/- 1 pc",
+            image: "https://i.pinimg.com/1200x/fe/6f/0f/fe6f0f88f6bef3f40f2662e5172b1acb.jpg",
             colors: ["Silver", "Black", "Rose Gold"],
             colorImages: {
-              "Silver": "https://i.pinimg.com/736x/0e/9f/10/0e9f1092bef724e72eb9a14240524875.jpg",
-              "Black": "https://placehold.co/600x450/000000/ffffff?text=BLACK+Smartwatch",
-              "Rose Gold": "https://placehold.co/600x450/f4b9b9/000000?text=ROSE+GOLD+Smartwatch",
+              "Silver": "https://i.pinimg.com/1200x/04/ba/91/04ba915855e3865128285de8c4cc9070.jpg",
+              "Rose Gold": "https://i.pinimg.com/1200x/fa/4d/05/fa4d0575da85cf31bd1208251cdce556.jpg",
+              "Gold": "https://placehold.co/600x450/f4b9b9/000000?text=ROSE+GOLD+Smartwatch",
             }
           },
           {
@@ -68,7 +70,7 @@
             name: "Bride To Be",
             category: "Electronics",
             description: "bride to be balloons with multiple colors.",
-            price: "$349.00",
+            price: "349.00/-",
             image: "https://i.pinimg.com/1200x/ba/75/f3/ba75f3d4068e510c2d8f2123a12fdae6.jpg",
             colors: ["White", "Black", "Red"],
             colorImages: {
@@ -82,7 +84,7 @@
             name: "Groom To Be",
             category: "Apparel",
             description: "groom to be fited balloons.",
-            price: "$45.99",
+            price: "45.99/-",
             image: "https://i.pinimg.com/1200x/86/7c/59/867c59a06d41ff27e1c41365d5766bc5.jpg",
             colors: ["White", "Navy", "Gray", "Red"],
           },
@@ -91,7 +93,7 @@
             name: "BEAR HEAD BALLOONS",
             category: "Electronics",
             description: "animals cartoon balloons for kids.",
-            price: "$65.00",
+            price: "65.00/-",
             image: "https://i.pinimg.com/1200x/ca/af/cb/caafcb9c346c03a5784194fa2f8155a9.jpg",
             colors: ["Black", "Green", "Red"],
           },
@@ -100,7 +102,7 @@
             name: "Popper",
             category: "Furniture",
             description: "popper with plastic and paper poppers.",
-            price: "$450.00",
+            price: "450.00/-",
             image: "https://i.pinimg.com/1200x/3d/b1/f0/3db1f085fad1d0573e6121c52de59330.jpg",
             colors: ["Charcoal", "Light Gray"],
           },
@@ -109,7 +111,7 @@
             name: "BIRTHDAY HAT",
             category: "Home Goods",
             description: "birthday hat for any category persons.",
-            price: "$199.90",
+            price: "199.90/-",
             image: "https://i.pinimg.com/736x/5a/20/81/5a2081e27b9c0f37be65094b9ce619c2.jpg",
             colors: ["Chrome", "Copper", "Black"],
           },
@@ -118,18 +120,81 @@
             name: "GLASSES",
             category: "Bags",
             description: "glasses for any occassions like wedding birthday etc",
-            price: "$125.00",
+            price: "125.00/-",
             image: "https://i.pinimg.com/1200x/d7/d5/36/d7d5362b8dfa50f83b690fc57e1e7aa4.jpg",
             colors: ["Forest Green", "Black", "Blue"],
           },
           {
-            id: 8,
-            name: "GLASSES",
-            category: "Bags",
-            description: "glasses for any occassions like wedding birthday etc",
-            price: "$125.00",
-            image: "https://i.pinimg.com/1200x/d7/d5/36/d7d5362b8dfa50f83b690fc57e1e7aa4.jpg",
-            colors: ["Forest Green", "Black", "Blue"],
+            id: 9,
+            name: "Gilt Balloons",
+            category: "Ballons",
+            description: "5 pcs of gilt balloons for 50 rupees only.",
+            price: "27.00/-",
+            image: "https://i.pinimg.com/1200x/1f/ad/ec/1fadec189a41317f940f6353d1a16724.jpg",
+            colors: [],
+          },
+          {
+            id: 10,
+            name: "Number Candles",
+            category: "Stick candles",
+            description: "Number candles for birthday cakes and other occassions.",
+            price: "50.00/-",
+            image: "https://i.pinimg.com/1200x/f6/5c/43/f65c434c18921ef36f97d2255ccca4a1.jpg",
+            colors: [],
+          },
+          {
+            id: 11,
+            name: "Birthday Full Set",
+            category: "Full Set",
+            description: "It comes With full set of balloons,Curtains and the birthday foil balloons.",
+            price: "50.00/-",
+            image: "https://i.pinimg.com/736x/c8/a5/ef/c8a5ef4c0509cbfdd3bb5df42944444b.jpg",
+            colors: [],
+          },
+          {
+            id: 12,
+            name: "Foil Stars Balloons",
+            category: "Balloons",
+            description: "custom made stars shape balloons, for single piece comes with only 10 rupees.",
+            price: "10.00/-",
+            image: "https://i.pinimg.com/1200x/7e/77/85/7e7785abbd1b86dfb87e9c6ffd6eabbb.jpg",
+            colors: [],
+          },
+          {
+            id: 13,
+            name: "Curved Candles Set",
+            category: "Candles",
+            description: "Curved candles set box with 6 pieces.",
+            price: "40.00/-",
+            image: "https://i.pinimg.com/736x/d5/a9/ef/d5a9efedd8271fa5b29c4d5528695255.jpg",
+            colors: [],
+          },
+          {
+            id: 14,
+            name: "Birthday Banner",
+            category: "Banner",
+            description: "The Birthday Banner Comes with paper material and with colorful letters.",
+            price: "78.00/-",
+            image: "https://i.pinimg.com/1200x/13/1f/d8/131fd84b9a18eb6906e14ac225191a7f.jpg",
+            colors: [],
+          },
+          {
+            id: 14,
+            name: "Foil Curtain Backdrop",
+            category: "Curtain",
+            description: "The Curtain backdrop with multiple colors with made of foil material",
+            price: "60.00/-",
+            image: "https://i.pinimg.com/1200x/97/8a/15/978a1553157b593e29ac5129dea01c4d.jpg",
+            colors: [],
+          },
+          {
+            id: 15,
+            name: "Spider Foil Balloons",
+            category: "Balloons",
+            description: "The Spider foil balloons for kids birthday party and other occassions.",
+            price: "50.00/-",
+            image: "https://i.pinimg.com/1200x/97/8a/15/978a1553157b593e29ac5129dea01c4d.jpg",
+            colors: [],
           },
         ];
 
@@ -315,20 +380,20 @@
                         <div class="mb-2">
                             <!-- Mobile view -->
                             <div class="flex flex-col sm:hidden items-start">
-                                <h3 class="text-base font-bold text-gray-800 leading-snug">
+                                <h3 class="text-sm font-medium text-gray-800 leading-tight line-clamp-1">
                                     ${product.name}
                                 </h3>
-                                <span class="text-sm font-bold text-blue-600 mt-1">
+                                <span class="text-sm font-semibold text-gray-700">
                                     ${product.price}
                                 </span>
                             </div>
 
                             <!-- Desktop view (unchanged layout) -->
                             <div class="hidden sm:flex justify-between items-start">
-                                <h3 class="text-lg font-bold text-gray-800 line-clamp-1">
+                                <h3 class="text-lg  text-gray-800 line-clamp-1">
                                     ${product.name}
                                 </h3>
-                                <span class="text-sm font-bold text-blue-600 ml-3 flex-shrink-0">
+                                <span class="text-sm font-bold text-black-600 ml-3 flex-shrink-0">
                                     ${product.price}
                                 </span>
                             </div>
@@ -346,10 +411,10 @@
 
                         <!-- Quick View / Contact Button -->
                         <button 
-                            class="w-full ${APP_CONFIG.PRIMARY_COLOR} ${APP_CONFIG.PRIMARY_COLOR_HOVER} text-white font-semibold py-2 rounded-lg transition duration-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-md"
+                            class="w-full ${APP_CONFIG.PRIMARY_COLOR} ${APP_CONFIG.PRIMARY_COLOR_HOVER} text-black font-semibold py-2 rounded-lg transition duration-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-md"
                             onclick="event.stopPropagation(); openModal(${product.id})"
                         >
-                            Quick View
+                            Book Now
                         </button>
                     </div>
                 </div>
@@ -441,11 +506,11 @@
 
                     <!-- Details Section -->
                     <div class="w-full md:w-7/12 p-2 md:pl-2">
-                        <h2 class="text-3xl font-extrabold text-gray-900 mb-2">${product.name}</h2>
-                        <p class="text-3xl font-bold text-blue-600 mb-6">${product.price}</p>
+                        <h2 class="text-xl font-semibold text-gray-900 mb-1">${product.name}</h2>
+                        <p class="text-base font-medium text-grey-700 mb-4">${product.price}</p>
                         
-                        <h3 class="text-xl font-semibold text-gray-700 mt-4 mb-2">Description</h3>
-                        <p class="text-gray-600 mb-6 leading-relaxed text-base">${product.description}</p>
+                        <h3 class="text-xl font-semibold text-gray-700 mt-4 mb-2"></h3>
+                        <p class="text-sm text-gray-600 leading-relaxed">${product.description}</p>
                         
                         <!-- Color Options (Now fully interactive) -->
                         <div class="mb-8 p-3 bg-gray-50 rounded-lg">
@@ -456,33 +521,33 @@
                         </div>
 
                         <!-- Booking and Contact Links -->
-                        <!-- Contact Actions -->
-                            <div class="mt-6 space-y-4">
+                       <!-- Contact Actions -->
+                        <div class="mt-6 space-y-4">
 
-                                <!-- PRIMARY CTA : WhatsApp -->
-                                <a
-                                    href="https://wa.me/918078452171?text=Hi%20I%20am%20interested%20in%20${encodeURIComponent(product.name)}%20priced%20at%20${encodeURIComponent(product.price)}.%20Please%20share%20more%20details."
-                                    target="_blank"
-                                    class="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl transition"
-                                >
-                                    <!-- WhatsApp Icon -->
-                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                        <path
-                                            d="M20.52 3.48A11.94 11.94 0 0012.02 0C5.39 0 0 5.37 0 12c0 2.11.55 4.17 1.6 5.98L0 24l6.17-1.62A11.95 11.95 0 0012.02 24C18.65 24 24 18.63 24 12c0-3.2-1.25-6.21-3.5-8.52z"
-                                        />
-                                    </svg>
-                                    Contact on WhatsApp
-                                </a>
+                            <!-- PRIMARY CTA : WhatsApp -->
+                            <a
+                                href="https://wa.me/918078452171?text=Hi%20I%20am%20interested%20in%20${encodeURIComponent(product.name)}%20priced%20at%20${encodeURIComponent(product.price)}.%0A%0AProduct%20Link:%20${encodeURIComponent(window.location.href)}%0A%0APlease%20share%20more%20details."
+                                target="_blank"
+                                class="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl transition"
+                            >
+                                <!-- WhatsApp Icon -->
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M20.52 3.48A11.94 11.94 0 0012.02 0C5.39 0 0 5.37 0 12c0 2.11.55 4.17 1.6 5.98L0 24l6.17-1.62A11.95 11.94 0 0012.02 24C18.65 24 24 18.63 24 12c0-3.2-1.25-6.21-3.5-8.52z"
+                                    />
+                                </svg>
+                                Contact on WhatsApp
+                            </a>
 
-                                <!-- SECONDARY CTA : Email -->
-                                <a
-                                    href="mailto:your@email.com?subject=Booking%20Inquiry%20-%20${encodeURIComponent(product.name)}&body=Hello,%0A%0AI%20am%20interested%20in%20${encodeURIComponent(product.name)}%20priced%20at%20${encodeURIComponent(product.price)}.%0A%0APlease%20share%20more%20details."
-                                    class="block text-center text-sm text-blue-600 hover:underline font-medium"
-                                >
-                                    or contact via Email
-                                </a>
+                            <!-- SECONDARY CTA : Email -->
+                            <a
+                                href="mailto:your@email.com?subject=Booking%20Inquiry%20-%20${encodeURIComponent(product.name)}&body=Hello,%0A%0AI%20am%20interested%20in%20${encodeURIComponent(product.name)}%20priced%20at%20${encodeURIComponent(product.price)}.%0A%0AProduct%20Link:%20${encodeURIComponent(window.location.href)}%0A%0APlease%20share%20more%20details."
+                                class="block text-center text-sm text-blue-600 hover:underline font-medium"
+                            >
+                                or contact via Email
+                            </a>
 
-                            </div>
+                        </div>
                         
                         <p class="text-sm text-gray-500 mt-4 text-center">
                             *Products are reserved only after direct contact confirmation.
