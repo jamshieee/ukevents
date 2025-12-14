@@ -122,6 +122,15 @@
             image: "https://i.pinimg.com/1200x/d7/d5/36/d7d5362b8dfa50f83b690fc57e1e7aa4.jpg",
             colors: ["Forest Green", "Black", "Blue"],
           },
+          {
+            id: 8,
+            name: "GLASSES",
+            category: "Bags",
+            description: "glasses for any occassions like wedding birthday etc",
+            price: "$125.00",
+            image: "https://i.pinimg.com/1200x/d7/d5/36/d7d5362b8dfa50f83b690fc57e1e7aa4.jpg",
+            colors: ["Forest Green", "Black", "Blue"],
+          },
         ];
 
         // --- 2. FIREBASE BOILERPLATE (Mandatory for environment) ---
@@ -303,11 +312,27 @@
 
                     <!-- Content -->
                     <div class="p-4 flex flex-col flex-grow">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="text-base sm:text-lg font-bold text-gray-800 line-clamp-1">${product.name}</h3>
-                            <span class="text-sm font-bold text-blue-600 flex-shrink-0 ml-3">${product.price}</span>
-                        </div>
-                        
+                        <div class="mb-2">
+                            <!-- Mobile view -->
+                            <div class="flex flex-col sm:hidden items-start">
+                                <h3 class="text-base font-bold text-gray-800 leading-snug">
+                                    ${product.name}
+                                </h3>
+                                <span class="text-sm font-bold text-blue-600 mt-1">
+                                    ${product.price}
+                                </span>
+                            </div>
+
+                            <!-- Desktop view (unchanged layout) -->
+                            <div class="hidden sm:flex justify-between items-start">
+                                <h3 class="text-lg font-bold text-gray-800 line-clamp-1">
+                                    ${product.name}
+                                </h3>
+                                <span class="text-sm font-bold text-blue-600 ml-3 flex-shrink-0">
+                                    ${product.price}
+                                </span>
+                            </div>
+                        </div>                      
                         <!-- Description (Hidden on mobile, visible on sm and up) -->
                         <p class="text-sm text-gray-500 mb-3 line-clamp-2 flex-grow hidden sm:block">${product.description}</p>
                         
@@ -401,20 +426,21 @@
             }
 
             modalContent.innerHTML = `
-                <div class="md:flex p-6 pt-0">
+                <div class="flex flex-col md:flex-row gap-6 md:gap-8 p-6 pt-0">
                     <!-- Image Section (Added ID for dynamic update) -->
-                    <div class="md:w-1/2 flex justify-center items-start p-4">
+                    <!-- Image Section -->
+                    <div class="w-full md:w-5/12 flex justify-center items-center">
                         <img 
                             id="modal-product-image"
                             src="${initialImageUrl}" 
-                            alt="${product.name} in ${activeColor[product.id] || 'default'}" 
-                            class="w-full h-auto max-h-[60vh] object-contain rounded-xl shadow-xl border border-gray-100 transition-opacity duration-300"
-                            onerror="this.onerror=null;this.src='https://placehold.co/600x450/e5e7eb/3b82f6?text=Image+Missing';"
+                            alt="${product.name}"
+                            class="max-w-full max-h-[340px] object-contain transition-all duration-300"
+                            onerror="this.onerror=null;this.src='https://placehold.co/500x350?text=Image+Missing';"
                         />
                     </div>
 
                     <!-- Details Section -->
-                    <div class="md:w-1/2 p-4 md:pl-8">
+                    <div class="w-full md:w-7/12 p-2 md:pl-2">
                         <h2 class="text-3xl font-extrabold text-gray-900 mb-2">${product.name}</h2>
                         <p class="text-3xl font-bold text-blue-600 mb-6">${product.price}</p>
                         
@@ -430,24 +456,33 @@
                         </div>
 
                         <!-- Booking and Contact Links -->
-                        <div class="space-y-4">
-                            <a 
-                            href="mailto:jamshiiijs@gmail.com?subject=${emailSubject}"
-                            class="w-full flex items-center justify-center ${APP_CONFIG.PRIMARY_COLOR} ${APP_CONFIG.PRIMARY_COLOR_HOVER} text-white font-bold py-3 rounded-xl transition duration-300 text-lg shadow-lg"
-                            onclick="closeModal()"
-                            >
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                            Contact for Booking (Email)
-                            </a>
-                            <a 
-                            href="https://wa.me/918078452171" target="_blank" rel="noopener noreferrer"
-                            class="w-full flex items-center justify-center bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition duration-300 text-lg shadow-lg"
-                            onclick="closeModal()"
-                            >
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 4v-4z"></path></svg>
-                            Chat on WhatsApp
-                            </a>
-                        </div>
+                        <!-- Contact Actions -->
+                            <div class="mt-6 space-y-4">
+
+                                <!-- PRIMARY CTA : WhatsApp -->
+                                <a
+                                    href="https://wa.me/9180-78452171?text=Hi%20I%20am%20interested%20in%20${encodeURIComponent(product.name)}%20priced%20at%20${encodeURIComponent(product.price)}.%0A%0AProduct%20Image:%0A${encodeURIComponent(product.image)}"
+                                    target="_blank"
+                                    class="flex items-center justify-center gap-2 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl transition"
+                                >
+                                    <!-- WhatsApp Icon -->
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            d="M20.52 3.48A11.94 11.94 0 0012.02 0C5.39 0 0 5.37 0 12c0 2.11.55 4.17 1.6 5.98L0 24l6.17-1.62A11.95 11.95 0 0012.02 24C18.65 24 24 18.63 24 12c0-3.2-1.25-6.21-3.5-8.52z"
+                                        />
+                                    </svg>
+                                    Chat on WhatsApp
+                                </a>
+
+                                <!-- SECONDARY CTA : Email -->
+                                <a
+                                    href="jamshiiijs@gmail.com?subject=Booking%20Inquiry%20-%20${encodeURIComponent(product.name)}&body=Hello,%0A%0AI%20am%20interested%20in%20${encodeURIComponent(product.name)}%20priced%20at%20${encodeURIComponent(product.price)}.%0A%0AProduct%20Image:%0A${encodeURIComponent(product.image)}%0A"
+                                    class="block text-center text-sm text-blue-600 hover:underline font-medium"
+                                >
+                                    or contact via Email
+                                </a>
+
+                            </div>
                         
                         <p class="text-sm text-gray-500 mt-4 text-center">
                             *Products are reserved only after direct contact confirmation.
