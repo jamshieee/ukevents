@@ -662,6 +662,107 @@
             // Initialize Lucide icons
             lucide.createIcons();
         });
+        let slideIndex = { birthday: 0, wedding: 0 };
+
+    function slideNext(type) {
+        const carousel = document.querySelector(`.${type}-carousel`);
+        slideIndex[type] = (slideIndex[type] + 1) % carousel.children.length;
+        carousel.style.transform = `translateX(-${slideIndex[type] * 100}%)`;
+    }
+
+    function slidePrev(type) {
+        const carousel = document.querySelector(`.${type}-carousel`);
+        slideIndex[type] = (slideIndex[type] - 1 + carousel.children.length) % carousel.children.length;
+        carousel.style.transform = `translateX(-${slideIndex[type] * 100}%)`;
+    }
+
+    setInterval(() => slideNext('birthday'), 4000);
+    setInterval(() => slideNext('wedding'), 5000);
+
+    // Swipe for carousel
+    function enableSwipe(className, type) {
+        const el = document.querySelector(`.${className}`);
+        let startX = 0;
+        el.addEventListener("touchstart", e => startX = e.touches[0].clientX);
+        el.addEventListener("touchend", e => {
+            const endX = e.changedTouches[0].clientX;
+            if (startX - endX > 50) slideNext(type);
+            if (endX - startX > 50) slidePrev(type);
+        });
+    }
+    enableSwipe("birthday-carousel", "birthday");
+    enableSwipe("wedding-carousel", "wedding");
+
+    // Fullscreen gallery
+        const gallery = {
+        birthday: [
+            "https://i.pinimg.com/1200x/9d/2e/91/9d2e919f8f0c99a2a3e3b7f7e3f92a55.jpg",
+            "https://i.pinimg.com/1200x/5a/20/81/5a2081e27b9c0f37be65094b9ce619c2.jpg",
+            "https://i.pinimg.com/1200x/c8/a5/ef/c8a5ef4c0509cbfdd3bb5df42944444b.jpg"
+        ],
+        wedding: [
+            "https://i.pinimg.com/1200x/97/8a/15/978a1553157b593e29ac5129dea01c4d.jpg",
+            "https://i.pinimg.com/1200x/13/1f/d8/131fd84b9a18eb6906e14ac225191a7f.jpg",
+            "https://i.pinimg.com/1200x/86/7c/59/867c59a06d41ff27e1c41365d5766bc5.jpg"
+        ]
+    };
+
+    let currentGallery = [];
+    let currentIndex = 0;
+
+    function openFullscreen(type, index) {
+        currentGallery = gallery[type];
+        currentIndex = index;
+
+        const viewer = document.getElementById("fullscreenViewer");
+        const image = document.getElementById("fullscreenImage");
+
+        image.src = currentGallery[currentIndex];
+        viewer.classList.remove("hidden");
+
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeFullscreen() {
+        document.getElementById("fullscreenViewer").classList.add("hidden");
+        document.body.style.overflow = "";
+    }
+
+    function fullscreenNext() {
+        currentIndex = (currentIndex + 1) % currentGallery.length;
+        document.getElementById("fullscreenImage").src = currentGallery[currentIndex];
+    }
+
+    function fullscreenPrev() {
+        currentIndex = (currentIndex - 1 + currentGallery.length) % currentGallery.length;
+        document.getElementById("fullscreenImage").src = currentGallery[currentIndex];
+    }
+
+    /* Swipe Support */
+    let startX = 0;
+    const viewer = document.getElementById("fullscreenViewer");
+
+    viewer.addEventListener("touchstart", e => {
+        startX = e.touches[0].clientX;
+    });
+
+    viewer.addEventListener("touchend", e => {
+        const endX = e.changedTouches[0].clientX;
+        if (startX - endX > 60) fullscreenNext();
+        if (endX - startX > 60) fullscreenPrev();
+    });
+
+    /* Close on background click */
+    viewer.addEventListener("click", e => {
+        if (e.target.id === "fullscreenViewer") {
+            closeFullscreen();
+        }
+    });
+
+    /* ESC key support */
+    document.addEventListener("keydown", e => {
+        if (e.key === "Escape") closeFullscreen();
+    });
     </script>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -726,6 +827,72 @@
                     >
                         View Products
                     </a>
+                    <!-- OUR WORKS SECTION WITH CAROUSEL -->
+                    <div class="py-16 border-b border-gray-100">
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+                            <!-- Heading -->
+                            <div class="text-center mb-12">
+                                <h2 class="text-4xl font-extrabold text-gray-900 mb-3">
+                                    Our <span class="text-blue-600">Focused</span> <span class="text-black-600">Works</span>
+                                </h2>
+                                <p class="text-gray-600 text-lg">
+                                    A glimpse of our birthday celebrations and wedding stage decorations
+                                </p>
+                            </div>
+                            <br>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+
+                                <!-- 🎂 Birthday Events -->
+                                <div class="bg-gray-50 rounded-2xl shadow-lg overflow-hidden">
+                                    <div class="relative overflow-hidden">
+                                        <div class="birthday-carousel flex transition-transform duration-700">
+                                            <img src="assets/IMG_9840.JPG"
+                                                class="w-full h-48 sm:h-56 md:h-64 object-cover flex-shrink-0 cursor-pointer"
+                                                onclick="openFullscreen('birthday',0)">
+                                            <img src="assets/IMG_9843.JPG"
+                                                class="w-full h-48 sm:h-56 md:h-64 object-cover flex-shrink-0 cursor-pointer"
+                                                onclick="openFullscreen('birthday',1)">
+                                            <img src="assets/IMG_9843.JPG"
+                                                class="w-full h-48 sm:h-56 md:h-64 object-cover flex-shrink-0 cursor-pointer"
+                                                onclick="openFullscreen('birthday',2)">
+                                        </div>
+
+                                        <button onclick="slidePrev('birthday')" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full">❮</button>
+                                        <button onclick="slideNext('birthday')" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full">❯</button>
+                                    </div>
+
+                                    <div class="p-6 text-center">
+                                        <h3 class="text-2xl font-bold text-gray-800 mb-2">Birthday Events</h3>
+                                        <p class="text-gray-600 text-sm">Creative balloon themes, custom backdrops, and joyful birthday setups for all ages.</p>
+                                    </div>
+                                </div>
+
+                                <!-- 💍 Wedding Stage -->
+                                <div class="bg-gray-50 rounded-2xl shadow-lg overflow-hidden">
+                                    <div class="relative overflow-hidden">
+                                        <div class="wedding-carousel flex transition-transform duration-700">
+                                            <img src="assets/IMG_9842.JPG"
+                                                class="w-full h-48 sm:h-56 md:h-64 object-cover flex-shrink-0 cursor-pointer"
+                                                onclick="openFullscreen('wedding',0)">
+                                            <img src="assets/IMG_9839.JPG"
+                                                class="w-full h-48 sm:h-56 md:h-64 object-cover flex-shrink-0 cursor-pointer"
+                                                onclick="openFullscreen('wedding',1)">
+                                        </div>
+
+                                        <button onclick="slidePrev('wedding')" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full">❮</button>
+                                        <button onclick="slideNext('wedding')" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full">❯</button>
+                                    </div>
+
+                                    <div class="p-6 text-center">
+                                        <h3 class="text-2xl font-bold text-gray-800 mb-2">Wedding Stage Works</h3>
+                                        <p class="text-gray-600 text-sm">Elegant wedding stages with premium decor, lighting, and floral arrangements.</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -921,6 +1088,27 @@
             <!-- Content will be injected here -->
         </div>
       </div>
+    </div>
+    <!-- FULLSCREEN IMAGE VIEWER (FIXED) -->
+    <div id="fullscreenViewer"
+        class="fixed inset-0 z-[9999] hidden bg-black bg-opacity-95 flex items-center justify-center">
+
+        <!-- Close Button -->
+        <button onclick="closeFullscreen()"
+            class="absolute top-4 right-4 text-white text-3xl font-bold z-[10000]">
+            ✕
+        </button>
+
+        <!-- Image -->
+        <img id="fullscreenImage"
+            class="max-w-[95vw] max-h-[95vh] object-contain select-none">
+
+        <!-- Navigation -->
+        <button onclick="fullscreenPrev()"
+            class="absolute left-3 md:left-6 text-white text-4xl z-[10000]">❮</button>
+
+        <button onclick="fullscreenNext()"
+            class="absolute right-3 md:right-6 text-white text-4xl z-[10000]">❯</button>
     </div>
 
 </body>
